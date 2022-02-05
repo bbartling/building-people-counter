@@ -32,6 +32,14 @@ bacnet = BAC0.lite()
 _new_objects.add_objects_to_application(bacnet)
 bacnet._log.info("APP Created Success!")
 
+# update BACnet api on skip frame count
+def update_bacnet_api(faces):
+    print(f"update_bacnet_api: {faces}")
+    occ_count = bacnet.this_application.get_object_name("People-Count")
+    occ_count.presentValue = Real(faces)
+    print(f"People-Count is {occ_count.presentValue}")
+
+
 
 cascasdepath = "haarcascade_frontalface_default.xml"
 face_cascade = cv2.CascadeClassifier(cascasdepath)
@@ -41,14 +49,6 @@ video_capture = cv2.VideoCapture(0)
 num_faces = None
 totalFrames = 0
 skip_frames = 20
-
-
-# update BACnet api on skip frame count
-def update_bacnet_api(faces):
-    print(f"update_bacnet_api: {faces}")
-    occ_count = bacnet.this_application.get_object_name("People-Count")
-    occ_count.presentValue = Real(faces)
-    print(f"People-Count is {occ_count.presentValue}")
 
 
 try:
