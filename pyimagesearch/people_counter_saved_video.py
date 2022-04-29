@@ -1,11 +1,3 @@
-# USAGE
-# To read and write back out to video:
-# python people_counter.py --prototxt mobilenet_ssd/MobileNetSSD_deploy.prototxt --model mobilenet_ssd/MobileNetSSD_deploy.caffemodel --input videos/o.mp4 --output output/output_01.avi
-# py -3.9 people_counter.py --prototxt mobilenet_ssd/MobileNetSSD_deploy.prototxt --model mobilenet_ssd/MobileNetSSD_deploy.caffemodel --input videos/slipstream2.mp4 --output output/slipstream2.avi
-
-# py -3.9 people_counter.py --prototxt mobilenet_ssd/MobileNetSSD_deploy.prototxt --model mobilenet_ssd/MobileNetSSD_deploy.caffemodel --input videos/lester/Driveway_2022-02-02T10_00_14-0600.mp4 --output output/Driveway.avi
-# py -3.9 people_counter.py --prototxt mobilenet_ssd/MobileNetSSD_deploy.prototxt --model mobilenet_ssd/MobileNetSSD_deploy.caffemodel --input videos/lester/Garage_2022-02-02T10_00_09-0600.mp4 --output output/Driveway2.avi
-
 # To read from webcam and write back out to disk:
 # py -3.9 people_counter.py --prototxt mobilenet_ssd/MobileNetSSD_deploy.prototxt --model mobilenet_ssd/MobileNetSSD_deploy.caffemodel --output output/webcam_output.avi
 
@@ -26,6 +18,8 @@ import cv2
 
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
+ap.add_argument("-n", "--filename", required=True,
+	help="name of vid file including extension")
 ap.add_argument("-p", "--prototxt", required=True,
 	help="path to Caffe 'deploy' prototxt file")
 ap.add_argument("-m", "--model", required=True,

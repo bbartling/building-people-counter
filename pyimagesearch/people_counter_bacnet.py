@@ -27,11 +27,73 @@ from bacpypes.primitivedata import Real
 
 
 
+'''
+BACNET APP SETUP BELOW
+'''
+
+# initialize the total number of frames processed thus far, along
+# with the total number of objects that have moved either up or down
+totalFrames = 0
+totalDown = 0
+totalUp = 0
+totalIn = 0
+
+    
+# people count BACnet point
+_new_objects = analog_value(
+        name="People-Count",
+        properties={"units": "noUnits"},
+        description="Number of people detected from computer vision",
+        presentValue=0,is_commandable=False
+    )
+
+
+BAC0.log_level('silence')
+# create bacnet app
+#bacnet = BAC0.lite(ip='10.0.2.20/24',deviceId='2021')
+bacnet = BAC0.lite()
+  
+_new_objects.add_objects_to_application(bacnet)
+print("[INFO] APP Created Success!")
+
+# update BACnet api on skip frame count
+def update_bacnet_api(count):
+    print(f"[INFO] update_bacnet_api count: {count}")
+    occ_count = bacnet.this_application.get_object_name("People-Count")
+    occ_count.presentValue = Real(count)
+    print(f"[INFO] People-Count is {occ_count.presentValue}")
+
+
+def countUp():
+    global totalUp
+    totalUp += 1
+    totalIn = totalDown - totalUp
+    if totalIn <= 0:
+        totalIn = 0
+    print("[INFO] countUp()")
+    to.counted = True
+    update_bacnet_api(totalIn)
+
+
+def countDown():
+    global totalDown
+    totalDown += 1
+    totalIn = totalDown - totalUp
+    if totalIn <= 0:
+        totalIn = 0
+    print("[INFO] countDown()")        
+    to.counted = True
+    update_bacnet_api(totalIn)
+
+
+"""
+CV APP STUFF
+"""
 model = "./mobilenet_ssd/MobileNetSSD_deploy.caffemodel" 
 prototxt = "./mobilenet_ssd/MobileNetSSD_deploy.prototxt"
 
 # load our serialized model from disk
-print("[INFO] loading model...")
+print("[INFO] loading CV model...")
 # net = cv2.dnn.readNetFromCaffe(args["prototxt"], args["model"])
 net = cv2.dnn.readNetFromCaffe(prototxt, model)
 
@@ -59,6 +121,8 @@ CLASSES = ["background", "aeroplane", "bicycle", "bird", "boat",
 
 
 print("[INFO] starting video stream...")
+
+
 vs = VideoStream(src=0).start()
 time.sleep(0.0)
 
@@ -76,66 +140,6 @@ H = None
 ct = CentroidTracker(maxDisappeared=40, maxDistance=50)
 trackers = []
 trackableObjects = {}
-
-# initialize the total number of frames processed thus far, along
-# with the total number of objects that have moved either up or down
-totalFrames = 0
-totalDown = 0
-totalUp = 0
-totalIn = 0
-
-
-
-'''
-BACNET APP SETUP BELOW
-'''
-    
-# people count BACnet point
-_new_objects = analog_value(
-        name="People-Count",
-        properties={"units": "noUnits"},
-        description="Number of people detected from computer vision",
-        presentValue=0,is_commandable=False
-    )
-
-
-# create bacnet app
-#bacnet = BAC0.lite(ip='10.0.2.20/24',deviceId='2021')
-bacnet = BAC0.lite()
-  
-_new_objects.add_objects_to_application(bacnet)
-bacnet._log.info("APP Created Success!")
-
-# update BACnet api on skip frame count
-def update_bacnet_api(count):
-    print(f"update_bacnet_api count: {count}")
-    occ_count = bacnet.this_application.get_object_name("People-Count")
-    occ_count.presentValue = Real(count)
-    print(f"People-Count is {occ_count.presentValue}")
-
-
-def countUp():
-    global totalUp
-    totalUp += 1
-    totalIn = totalDown - totalUp
-    if totalIn <= 0:
-        totalIn = 0
-    print("countUp()")
-    to.counted = True
-    update_bacnet_api(totalIn)
-
-
-def countDown():
-    global totalDown
-    totalDown += 1
-    totalIn = totalDown - totalUp
-    if totalIn <= 0:
-        totalIn = 0
-    print("countDown()")        
-    to.counted = True
-    update_bacnet_api(totalIn)
-
-
 
 # start the frames per second throughput estimator
 fps = FPS().start()
@@ -345,7 +349,17 @@ try:
 
 
 except KeyboardInterrupt:
-    print('trying to exit gracefully')
+    print("[INFO] Trying to exit gracefully!")
     bacnet.disconnect()
+
+    # stop the timer and display FPS information
+    fps.stop()
+    print("[INFO] elapsed time: {:.2f}".format(fps.elapsed()))
+    print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
+
+    # check to see if we need to release the video writer pointer
+    if writer is not None:
+        writer.release()
+    
     vs.stop()
     cv2.destroyAllWindows()
