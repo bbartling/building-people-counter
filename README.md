@@ -3,7 +3,7 @@
 ## Computer Vision (CV) and BACnet api app based on [pyimagesearch](https://pyimagesearch.com/2018/08/13/opencv-people-counter/) people counting tutorials and a Python BACnet app called [BAC0](https://bac0.readthedocs.io/en/latest/).
 
 
-![snip](/pyimagesearch/snips/exampleSnip.png)
+![exampleSnip](/pyimagesearch/snips/exampleSnip.PNG)
 
 ### One discoverable BACnet analog value point `People-Count` which is a totalized value of people going in and out for whom have crossed the Yellow line in the video feed.
 
@@ -18,8 +18,8 @@ On Windows with Python 3.9:
 $ py -3.9 pip install -r requirements.txt
 ```
 
-# OPTIONAL args when starting app
-# horizontal people crossing line
+OPTIONAL args when starting app
+horizontal people crossing line
 ```
 # change directory to the pyimagesearch folder then run
 
