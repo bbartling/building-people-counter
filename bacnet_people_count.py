@@ -1,4 +1,3 @@
-
 # To read from webcam and write back out to disk:
 # py -3.9 people_counter.py 
 
@@ -27,18 +26,39 @@ from bacpypes.primitivedata import Real
 
 
 
+# construct the argument parse and parse the arguments
+ap = argparse.ArgumentParser()
+
+ap.add_argument("-o",
+                "--output",
+                type=str,
+                help="path to optional output video file")
+
+ap.add_argument("-c",
+                "--confidence",
+                type=float,
+                default=0.4,
+                help="minimum probability to filter weak detections")
+
+ap.add_argument("-s",
+                "--skip-frames",
+                type=int,
+                default=30,
+                help="# of skip frames between detections")
+
+ap.add_argument("-v",
+                "--vertical",
+                type=bool,
+                default=False,
+                help="specify vertical or horizontal line")
+
+
+args = vars(ap.parse_args())
+
 '''
 BACNET APP SETUP BELOW
 '''
 
-# initialize the total number of frames processed thus far, along
-# with the total number of objects that have moved either up or down
-totalFrames = 0
-totalDown = 0
-totalUp = 0
-totalIn = 0
-
-    
 # people count BACnet point
 _new_objects = analog_value(
         name="People-Count",
@@ -48,20 +68,19 @@ _new_objects = analog_value(
     )
 
 
-BAC0.log_level('silence')
 # create bacnet app
 #bacnet = BAC0.lite(ip='10.0.2.20/24',deviceId='2021')
 bacnet = BAC0.lite()
-  
+
 _new_objects.add_objects_to_application(bacnet)
-print("[INFO] APP Created Success!")
+bacnet._log.info("APP Created Success!")
 
 # update BACnet api on skip frame count
 def update_bacnet_api(count):
-    print(f"[INFO] update_bacnet_api count: {count}")
+    print(f"update_bacnet_api count: {count}")
     occ_count = bacnet.this_application.get_object_name("People-Count")
     occ_count.presentValue = Real(count)
-    print(f"[INFO] People-Count is {occ_count.presentValue}")
+    print(f"People-Count is {occ_count.presentValue}")
 
 
 def countUp():
@@ -70,7 +89,7 @@ def countUp():
     totalIn = totalDown - totalUp
     if totalIn <= 0:
         totalIn = 0
-    print("[INFO] countUp()")
+    print("countUp()")
     to.counted = True
     update_bacnet_api(totalIn)
 
@@ -81,55 +100,24 @@ def countDown():
     totalIn = totalDown - totalUp
     if totalIn <= 0:
         totalIn = 0
-    print("[INFO] countDown()")        
+    print("countDown()")        
     to.counted = True
     update_bacnet_api(totalIn)
 
 
 """
-CV APP STUFF
+Computer Vision Config Below
 """
+
+
 model = "./mobilenet_ssd/MobileNetSSD_deploy.caffemodel" 
 prototxt = "./mobilenet_ssd/MobileNetSSD_deploy.prototxt"
 
 # load our serialized model from disk
-print("[INFO] loading CV model...")
+print("[INFO] loading model...")
+# net = cv2.dnn.readNetFromCaffe(args["prototxt"], args["model"])
 net = cv2.dnn.readNetFromCaffe(prototxt, model)
 
-
-# construct the argument parse and parse the arguments
-my_parser = argparse.ArgumentParser(description='args to optimize computer vision performance')
-
-my_parser.add_argument("-o",
-                    "--output",
-                    type=str,
-                    help="path to optional output video file")
-
-my_parser.add_argument("-c",
-                    "--confidence",
-                    type=float,
-                    default=0.4,
-                    help="minimum probability to filter weak detections")
-
-my_parser.add_argument("-s",
-                    "--skipframes",
-                    type=int,
-                    default=30,
-                    help="# of skip frames between detections")
-
-my_parser.add_argument("-v",
-                    "--vertical",
-                    type=bool,
-                    default=False,
-                    help="veritical or horizontal people crossing line")
-
-args = my_parser.parse_args()
-
-
-output = args.output
-confidence = args.confidence
-skipframes = args.skipframes
-vertical = args.vertical
 
 
 # initialize the list of class labels MobileNet SSD was trained to
@@ -142,8 +130,6 @@ CLASSES = ["background", "aeroplane", "bicycle", "bird", "boat",
 
 
 print("[INFO] starting video stream...")
-
-
 vs = VideoStream(src=0).start()
 time.sleep(0.0)
 
@@ -161,6 +147,16 @@ H = None
 ct = CentroidTracker(maxDisappeared=40, maxDistance=50)
 trackers = []
 trackableObjects = {}
+
+# initialize the total number of frames processed thus far, along
+# with the total number of objects that have moved either up or down
+totalFrames = 0
+totalDown = 0
+totalUp = 0
+totalIn = 0
+
+
+
 
 # start the frames per second throughput estimator
 fps = FPS().start()
@@ -186,9 +182,9 @@ try:
 
         # if we are supposed to be writing a video to disk, initialize
         # the writer
-        if output is not None and writer is None:
+        if args["output"] is not None and writer is None:
             fourcc = cv2.VideoWriter_fourcc(*"MJPG")
-            writer = cv2.VideoWriter(output, fourcc, 30,
+            writer = cv2.VideoWriter(args["output"], fourcc, 30,
                 (W, H), True)
 
         # initialize the current status along with our list of bounding
@@ -199,7 +195,7 @@ try:
 
         # check to see if we should run a more computationally expensive
         # object detection method to aid our tracker
-        if totalFrames % skipframes == 0:
+        if totalFrames % args["skip_frames"] == 0:
             # set the status and initialize our new set of object trackers
             status = "Detecting"
             trackers = []
@@ -218,7 +214,7 @@ try:
 
                 # filter out weak detections by requiring a minimum
                 # confidence
-                if confidence > confidence:
+                if confidence > args["confidence"]:
                     # extract the index of the class label from the
                     # detections list
                     idx = int(detections[0, 0, i, 1])
@@ -269,16 +265,12 @@ try:
         # object crosses this line we will determine whether they were
         # moving 'up' or 'down'
 
-
-
-        # VERTICAL PEOPLE CROSSING LINE
-        if vertical:
+        if not args["vertical"]:
+            cv2.line(frame, (0, H // 2), (W, H // 2), (0, 255, 255), 2)
+            
+        else:
             cv2.line(frame, (W//2,0), (W//2, H) , (0,255,255), 2)
 
-        # HORIZONTAL PEOPLE CROSSING LINE
-        else:
-            cv2.line(frame, (0, H // 2), (W, H // 2), (0, 255, 255), 2)            
-        
 
         # use the centroid tracker to associate the (1) old object
         # centroids with (2) the newly computed object centroids
@@ -312,13 +304,13 @@ try:
                     # line, count the object
                     if direction < 0 and centroid[1] < H // 2:
                         countUp()
-                    
+
                     # if the direction is positive (indicating the object
                     # is moving down) AND the centroid is below the
                     # center line, count the object
                     elif direction > 0 and centroid[1] > H // 2:
                         countDown()
-                  
+
             # store the trackable object in our dictionary
             trackableObjects[objectID] = to
 
@@ -378,17 +370,7 @@ try:
 
 
 except KeyboardInterrupt:
-    print("[INFO] Trying to exit gracefully!")
+    print('trying to exit gracefully')
     bacnet.disconnect()
-
-    # stop the timer and display FPS information
-    fps.stop()
-    print("[INFO] elapsed time: {:.2f}".format(fps.elapsed()))
-    print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
-
-    # check to see if we need to release the video writer pointer
-    if writer is not None:
-        writer.release()
-    
     vs.stop()
     cv2.destroyAllWindows()
