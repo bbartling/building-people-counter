@@ -1,11 +1,14 @@
 # bacnet-people-counter
 
-## Computer Vision (CV) and BACnet api app based on [pyimagesearch](https://pyimagesearch.com/2018/08/13/opencv-people-counter/) people counting tutorials and a Python BACnet app called [BAC0]
-(https://bac0.readthedocs.io/en/latest/).
+## Computer Vision (CV) and BACnet api app based on [pyimagesearch](https://pyimagesearch.com/2018/08/13/opencv-people-counter/) people counting tutorials and a Python BACnet app called [BAC0](https://bac0.readthedocs.io/en/latest/).
 
 
-# tested on Windows 10 due to issues trying to install `dlib` on Linux. (future develop on Linux)
-# install packages with pip
+![snip](/pyimagesearch/snips/exampleSnip.png)
+
+### One discoverable BACnet analog value point `People-Count` which is a totalized value of people going in and out for whom have crossed the Yellow line in the video feed.
+
+Tested on Windows 10 due to issues trying to install `dlib` on Linux. (future development on Linux env)
+Install packages with pip
 ```
 $ pip3 install -r requirements.txt
 ```
