@@ -18,15 +18,15 @@ On Windows with Python 3.9:
 $ py -3.9 pip install -r requirements.txt
 ```
 
-OPTIONAL args when starting app
-horizontal people crossing line
+Start app by:
 ```
-# change directory to the pyimagesearch folder then run
+# change directory to the pyimagesearch folder 
+# default is horizontal yellow line, then run
 
 $ py -3.9 bacnet_people_counter.py
 ```
 
-# vertical people crossing line
+OPTIONAL args for vertical people crossing line
 ```
 $ py -3.9 bacnet_people_counter.py -v True
 ```
@@ -45,7 +45,7 @@ Skipframe for the video feed to reclassify objects in the frame. Other frames of
 `-s` or `--skipframes` this number default is 30 frames could be used for performance tuning purposes depending on the amount of people and overall frame per second (FPS) performance. 
 
 
-## This app prints at the when closed via `CNTRL-C` FPS and elapsed time.
+## To stop app use `CNTRL-C` which will also print FPS and elapsed time.
 
 ```
 [INFO] elapsed time: 2.85
