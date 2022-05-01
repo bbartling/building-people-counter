@@ -94,21 +94,42 @@ prototxt = "./mobilenet_ssd/MobileNetSSD_deploy.prototxt"
 
 # load our serialized model from disk
 print("[INFO] loading CV model...")
-# net = cv2.dnn.readNetFromCaffe(args["prototxt"], args["model"])
 net = cv2.dnn.readNetFromCaffe(prototxt, model)
 
 
-
 # construct the argument parse and parse the arguments
-ap = argparse.ArgumentParser()
+my_parser = argparse.ArgumentParser(description='args to optimize computer vision performance')
 
-ap.add_argument("-o", "--output", type=str,
-	help="path to optional output video file")
-ap.add_argument("-c", "--confidence", type=float, default=0.4,
-	help="minimum probability to filter weak detections")
-ap.add_argument("-s", "--skip-frames", type=int, default=30,
-	help="# of skip frames between detections")
-args = vars(ap.parse_args())
+my_parser.add_argument("-o",
+                    "--output",
+                    type=str,
+                    help="path to optional output video file")
+
+my_parser.add_argument("-c",
+                    "--confidence",
+                    type=float,
+                    default=0.4,
+                    help="minimum probability to filter weak detections")
+
+my_parser.add_argument("-s",
+                    "--skipframes",
+                    type=int,
+                    default=30,
+                    help="# of skip frames between detections")
+
+my_parser.add_argument("-v",
+                    "--vertical",
+                    type=bool,
+                    default=False,
+                    help="veritical or horizontal people crossing line")
+
+args = my_parser.parse_args()
+
+
+output = args.output
+confidence = args.confidence
+skipframes = args.skipframes
+vertical = args.vertical
 
 
 # initialize the list of class labels MobileNet SSD was trained to
@@ -165,9 +186,9 @@ try:
 
         # if we are supposed to be writing a video to disk, initialize
         # the writer
-        if args["output"] is not None and writer is None:
+        if output is not None and writer is None:
             fourcc = cv2.VideoWriter_fourcc(*"MJPG")
-            writer = cv2.VideoWriter(args["output"], fourcc, 30,
+            writer = cv2.VideoWriter(output, fourcc, 30,
                 (W, H), True)
 
         # initialize the current status along with our list of bounding
@@ -178,7 +199,7 @@ try:
 
         # check to see if we should run a more computationally expensive
         # object detection method to aid our tracker
-        if totalFrames % args["skip_frames"] == 0:
+        if totalFrames % skipframes == 0:
             # set the status and initialize our new set of object trackers
             status = "Detecting"
             trackers = []
@@ -197,7 +218,7 @@ try:
 
                 # filter out weak detections by requiring a minimum
                 # confidence
-                if confidence > args["confidence"]:
+                if confidence > confidence:
                     # extract the index of the class label from the
                     # detections list
                     idx = int(detections[0, 0, i, 1])
@@ -247,8 +268,16 @@ try:
         # draw a horizontal line in the center of the frame -- once an
         # object crosses this line we will determine whether they were
         # moving 'up' or 'down'
-        cv2.line(frame, (0, H // 2), (W, H // 2), (0, 255, 255), 2)
-        #cv2.line(frame, (W//2,0), (W//2, H) , (0,255,255), 2)
+
+
+
+        # VERTICAL PEOPLE CROSSING LINE
+        if vertical:
+            cv2.line(frame, (W//2,0), (W//2, H) , (0,255,255), 2)
+
+        # HORIZONTAL PEOPLE CROSSING LINE
+        else:
+            cv2.line(frame, (0, H // 2), (W, H // 2), (0, 255, 255), 2)            
         
 
         # use the centroid tracker to associate the (1) old object
