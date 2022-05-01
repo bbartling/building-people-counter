@@ -35,13 +35,13 @@ or
 $ py -3.9 bacnet_people_counter.py --vertical True
 ```
 
-Save a video file output in mp4 format:
+#### Save a video file output in mp4 format:
 `-o` or `--output` which is the path to optional output video file in string format
 
-Confidence for minimum probability for classification of a peron in video feed. Every `s` skipframe of the video feed a classification algorithm is ran to see if more people have entered the video feed. This arg can be tweaked to improve performance:
+#### Confidence for minimum probability for classification of a peron in video feed. Every `s` skipframe of the video feed a classification algorithm is ran to see if more people have entered the video feed. This arg can be tweaked to improve performance:
 `-c` or `--confidence` minimum probability to filter weak detections in float, default is 0.4.
 
-Skipframe for the video feed to reclassify objects in the frame. Other frames of the video feed that are not "skipframes" object tracking algorithms are used with the `dlib` package:
+#### Skipframe for the video feed to reclassify objects in the frame. Other frames of the video feed that are not "skipframes" object tracking algorithms are used with the `dlib` package:
 `-s` or `--skipframes` this number default is 30 frames could be used for performance tuning purposes depending on the amount of people and overall frame per second (FPS) performance. 
 
 
