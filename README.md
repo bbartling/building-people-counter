@@ -72,4 +72,4 @@ $ py -3.9 bacnet_people_counter.py -v True
 
 ```
 
-### Hopefully more testing soon!
+### Hopefully more testing soon on a Nvidia Jetson Nano!
