@@ -72,4 +72,4 @@ $ py -3.9 bacnet_people_counter.py -v True
 
 ```
 
-### Hopefully more testing soon on a Nvidia Jetson Nano!
+### Hopefully more testing soon for the interception of existing IP security camera systems and possible USB camera deployment on a Nvidia Jetson Nano! Got any ideas to try submit a github discussion or issue!
