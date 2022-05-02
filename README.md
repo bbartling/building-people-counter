@@ -9,7 +9,7 @@ This repo contains a BACnet API and rest API for people counting via computer vi
 
 ![exampleSnip](/snips/exampleSnip.PNG)
 
-### One discoverable BACnet analog value point `People-Count` which is a totalized value of people going in and out for whom have crossed the Yellow line in the video feed.
+### One discoverable BACnet analog value point `People-Count` or JSON rest API payload that is a totalized value of people going in and out for whom have crossed the Yellow line in the video feed.
 
 Tested on Windows 10 due to issues trying to install `dlib` on Linux. (future development on Linux env)
 Install packages with pip
