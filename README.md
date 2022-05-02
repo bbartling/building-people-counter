@@ -2,11 +2,9 @@
 
 This repo contains a BACnet API and rest API for people counting via computer vision methods. The idea is to run this app on a machine (current testing Windows) that has a USB web camera inside the building and have IoT or the building automation system poll for total amount of people that has walked by the camera.
 
-### Computer Vision (CV) is based on the [pyimagesearch](https://pyimagesearch.com/2018/08/13/opencv-people-counter/) people counting tutorials. 
-
-### Python BACnet api is built on [BAC0](https://bac0.readthedocs.io/en/latest/).
-
-### Python web app that runs the rest API endpoint is based on [Flask](https://flask.palletsprojects.com/en/2.1.x/).
+- Computer Vision (CV) is based on the [pyimagesearch](https://pyimagesearch.com/2018/08/13/opencv-people-counter/) people counting tutorials. 
+- Python BACnet api is built on [BAC0](https://bac0.readthedocs.io/en/latest/).
+- Python web app that runs the rest API endpoint is based on [Flask](https://flask.palletsprojects.com/en/2.1.x/).
 
 
 ![exampleSnip](/snips/exampleSnip.PNG)
@@ -30,6 +28,7 @@ Start rest API app by:
 ```
 # change directory to the pyimagesearch folder 
 # default is horizontal yellow line, then run
+# default port is 5000, but use -p arg to specify
 
 $ py -3.9 restful_people_count.py
 ```
