@@ -1,5 +1,5 @@
 # building-automation-people-counter
-* This repo needs testing in real world environment, the idea is to share data to a building automation system (BAS) on a local area network (LAN). Heating, ventilation, and air conditioning (HVAC) in commercial buildings can use occupancy data to save on building fuel consumption which saves money and green house gas emmissions. 
+This repo needs testing in real world environment, the idea is to share data to a building automation system (BAS) on a local area network (LAN). Heating, ventilation, and air conditioning (HVAC) in commercial buildings can use occupancy data to save on building fuel consumption which saves money and green house gas emmissions. 
 This repo contains a BACnet API and rest API for people counting via computer vision methods. The idea is to run this app on a machine (current testing Windows) that has a USB web camera inside the building and have IoT or the building automation system poll for total amount of people that has walked by the camera.
 
 - Computer Vision (CV) is based on the [pyimagesearch](https://pyimagesearch.com/2018/08/13/opencv-people-counter/) people counting tutorials. 
