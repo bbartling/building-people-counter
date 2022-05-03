@@ -27,11 +27,10 @@ class mycomputer_vision(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         
-        self.totalpeeps = 0
+        self.netPeopleCount = 0
+        self.netCountDown = 0
+        self.netCountUp = 0
         self.totalFrames = 0
-        self.totalDown = 0
-        self.totalUp = 0
-        self.totalIn = 0
 
 
     def run(self):
@@ -90,22 +89,22 @@ class mycomputer_vision(threading.Thread):
         
         def countUp():
             print("countUp()")
-            self.totalUp += 1
-            totalPeeps = self.totalDown - self.totalUp
-            if totalPeeps <= 0:
-                totalPeeps = 0
+            self.netCountUp += 1
+            netPeopleCount = self.netCountUp - self.netCountDown
+            if netPeopleCount <= 0:
+                netPeopleCount = 0
             to.counted = True
-            self.totalpeeps = totalPeeps
+            self.netPeopleCount = netPeopleCount
 
 
         def countDown():
             print("countDown()")
-            self.totalDown += 1
-            totalPeeps = self.totalDown - self.totalUp
-            if totalPeeps <= 0:
-                totalPeeps = 0
+            self.netCountDown += 1
+            netPeopleCount = self.netCountUp - self.netCountDown
+            if netPeopleCount <= 0:
+                netPeopleCount = 0
             to.counted = True
-            self.totalpeeps = totalPeeps
+            self.netPeopleCount = netPeopleCount
 
 
 
@@ -269,8 +268,8 @@ class mycomputer_vision(threading.Thread):
             # construct a tuple of information we will be displaying on the
             # frame
             info = [
-                ("Up", self.totalUp),
-                ("Down", self.totalDown),
+                ("Up", self.netCountUp),
+                ("Down", self.netCountDown),
                 ("Status", status),
             ]
 
@@ -325,7 +324,11 @@ computer_vision = mycomputer_vision()
 
 @app.route('/people-count') 
 def get_updates(): 
-    return jsonify({"People-Count":computer_vision.totalpeeps})
+    return jsonify({
+            "Net-People-Count":computer_vision.netPeopleCount,
+            "Net-People-Out":computer_vision.netCountDown,
+            "Net-People-In":computer_vision.netCountUp          
+            })
 
 
 
