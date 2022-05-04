@@ -324,11 +324,47 @@ computer_vision = mycomputer_vision()
 
 @app.route('/people-count') 
 def get_updates(): 
-    return jsonify({
-            "Net-People-Count":computer_vision.netPeopleCount,
-            "Net-People-Out":computer_vision.netCountDown,
-            "Net-People-In":computer_vision.netCountUp          
-            })
+
+    try:
+    
+        info = {"net-people-count":computer_vision.netPeopleCount,
+                "net-people-out":computer_vision.netCountDown,
+                "net-people-in":computer_vision.netCountUp}  
+    
+        response_obj = {'status':'success','info':info}
+        
+    except Exception as error:
+    
+        info = str(error)
+        print(error)
+        response_obj = {'status':'fail','info':info}
+        
+        return jsonify(response_obj), 500
+
+    return jsonify(response_obj)
+
+
+@app.route('/reset') 
+def reset_params(): 
+
+    try:
+    
+        computer_vision.netPeopleCount = 0
+        computer_vision.netCountDown = 0
+        computer_vision.netCountUp = 0
+    
+        response_obj = {'status':'success'}
+        
+    except Exception as error:
+    
+        info = str(error)
+        print(error)
+        response_obj = {'status':'fail','info':info}
+        
+        return jsonify(response_obj), 500
+
+    return jsonify(response_obj)
+
 
 
 
