@@ -44,7 +44,7 @@ There is one GET URL endpoint `http://localhost:5000/people-count` (tested on lo
 	"status": "success"
 }
 ```
-And there is another GET URL endpoint `http://localhost:5000/reset` to reset the object count telemetry back to zero. The idea would be for to connect up the `reset` endpoint to a BAS schedule or some sort of external IoT reoccuring task to reset numbers each day, like for example every day at midnight a BAS schedule triggers a GET request to `reset` parameters everynight to keep data relative.
+And there is another GET URL endpoint `http://localhost:5000/reset` to reset the object count telemetry back to zero. The idea would be for to connect up the `reset` endpoint to a BAS schedule or some sort of external IoT reoccuring task to reset numbers each day, like for example every day at midnight a BAS schedule triggers a GET request to `reset` parameters everynight to keep data consistant for daily record keeping purposes.
 
 
 Start BACnet app by:
