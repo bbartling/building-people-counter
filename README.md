@@ -33,12 +33,19 @@ Start rest API app by:
 $ py -3.9 restful_people_count.py
 ```
 
-There is one GET URL endpoint `http://localhost:5000/people-count` that will return a JSON response:
+There is one GET URL endpoint `http://localhost:5000/people-count` (tested on localhost) that will return a JSON response of the object count telemetry:
 ```
 {
-	"People-Count": 12
+	"info": {
+		"net-people-count": 1,
+		"net-people-in": 5,
+		"net-people-out": 4
+	},
+	"status": "success"
 }
 ```
+And there is another GET URL endpoint `http://localhost:5000/reset` to reset the object count telemetry back to zero. The idea would be for to connect up the `reset` endpoint to a BAS schedule or some sort of external IoT reoccuring task to reset numbers each day, like for example every day at midnight a BAS schedule triggers a GET request to `reset` parameters everynight to keep data relative.
+
 
 Start BACnet app by:
 ```
