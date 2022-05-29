@@ -336,7 +336,7 @@ def get_updates():
 
     response_obj = {'status':'success','info':info}
     
-    return jsonify(response_obj)
+    return response_obj
 
 
 @app.route('/people/count') 
@@ -387,8 +387,6 @@ MAIN LOOP BELOW
 
 
 if __name__ == "__main__":
-
-    global vs
 
     # construct the argument parse and parse the arguments
     ap = argparse.ArgumentParser()

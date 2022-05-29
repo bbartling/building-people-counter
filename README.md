@@ -34,7 +34,8 @@ Start app by:
 $ py restful_people_count.py
 ```
 
-There is one GET URL endpoint `http://localhost:5000/people` (tested on localhost) that will return a JSON response of the object count telemetry:
+Computer vision can be viewed in the web browser on `http://localhost:5000/people.` One GET URL endpoint `http://localhost:5000/people` (tested on localhost) that will return a JSON response of the object count telemetry:
+
 ```
 {
 	"info": {
