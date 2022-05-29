@@ -46,7 +46,7 @@ There is one GET URL endpoint `http://localhost:5000/people` (tested on localhos
 }
 ```
 
-Web app also includes specific endpoints to retrieve direct data values:
+Web app also includes specific endpoints to retrieve direct data values in JSON format:
 - `http://localhost:5000/people/count`
 - `http://localhost:5000/people/in` 
 - `http://localhost:5000/people/out` 
