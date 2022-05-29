@@ -57,7 +57,7 @@ And there is another GET URL endpoint `http://localhost:5000/reset` to reset the
 
 OPTIONAL args for vertical people crossing line
 ```
-$ py restful_people_count.py-v True
+$ py restful_people_count.py -v True
 ```
 
 
@@ -71,7 +71,7 @@ $ py restful_people_count.py-v True
 `-s` this number default is 30 frames could be used for performance tuning purposes depending on the amount of people and overall frame per second (FPS) performance. 
 
 
-## To stop app press `q` on the camera feed window and then a `CNTRL-c` in command prompt to exit gracefully. This also will also print FPS and elapsed time.
+## To stop app use CTRL-C` in command prompt to exit gracefully. This also will also print FPS and elapsed time.
 
 ```
 [INFO] elapsed time: 2.85
