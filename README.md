@@ -1,6 +1,6 @@
 # datalog-building-people-counter
-This repo needs testing in real world environment, the idea is to share data to a building automation system (BAS) on a local area network (LAN). Heating, ventilation, and air conditioning (HVAC) in commercial buildings can use occupancy data to save on building fuel consumption which saves money and green house gas emmissions. 
-This repo contains a BACnet API and rest API for people counting via computer vision methods. The idea is to run this app on a machine (current testing Windows) that has a USB web camera inside the building and have IoT or the building automation system poll for total amount of people that has walked by the camera.
+
+(insert snip of laptop & USB cam) 
 
 - Computer Vision (CV) is based on the [pyimagesearch](https://pyimagesearch.com/2018/08/13/opencv-people-counter/) people counting tutorials. 
 - Python web app that runs the rest API endpoint to retrieve people count metrics and to render computer vision in browser is based on [Flask](https://flask.palletsprojects.com/en/2.1.x/).
@@ -9,7 +9,12 @@ This repo contains a BACnet API and rest API for people counting via computer vi
 ![exampleSnip](/snips/exampleSnip.PNG)
 
 
-On Windows with Python 3.10:
+On Windows with Python 3.10.4 with 64 bit executable file:
+https://www.python.org/downloads/release/python-3104/
+
+Clone the repo and change directoy into the project
+Next install Python packages with pip:
+
 ```
 $ py pip install -r requirements.txt
 ```
@@ -26,7 +31,7 @@ Start app by:
 ```
 # default port is 5000, but use -p arg to specify a specific port number
 
-$ py -3.9 restful_people_count.py
+$ py restful_people_count.py
 ```
 
 There is one GET URL endpoint `http://localhost:5000/people` (tested on localhost) that will return a JSON response of the object count telemetry:
@@ -52,7 +57,7 @@ And there is another GET URL endpoint `http://localhost:5000/reset` to reset the
 
 OPTIONAL args for vertical people crossing line
 ```
-$ py -3.9 restful_people_count.py-v True
+$ py restful_people_count.py-v True
 ```
 
 
