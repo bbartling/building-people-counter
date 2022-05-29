@@ -14,7 +14,7 @@ import dlib
 import cv2
 
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template, Response
 import flask
 import time
 import threading
@@ -26,15 +26,23 @@ import threading
 class mycomputer_vision(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
-        
+
         self.netPeopleCount = 0
         self.netCountDown = 0
         self.netCountUp = 0
         self.totalFrames = 0
+        self.killswitch = False
+
+
+    def kill(self):
+
+        print("kill switch hit")
+        self.killswitch = True
 
 
     def run(self):
-
+        global framecopy, vs
+        
         model = "./mobilenet_ssd/MobileNetSSD_deploy.caffemodel" 
         prototxt = "./mobilenet_ssd/MobileNetSSD_deploy.prototxt"
 
@@ -109,7 +117,7 @@ class mycomputer_vision(threading.Thread):
 
 
         # loop over frames from the video stream
-        while True:
+        while self.killswitch == False:
             # grab the next frame and handle if we are reading from either
             # VideoCapture or VideoStream
             frame = vs.read()
@@ -283,6 +291,7 @@ class mycomputer_vision(threading.Thread):
             if writer is not None:
                 writer.write(frame)
 
+            '''
             # show the output frame
             cv2.imshow("Frame", frame)
             key = cv2.waitKey(1) & 0xFF
@@ -290,7 +299,12 @@ class mycomputer_vision(threading.Thread):
             # if the `q` key was pressed, break from the loop
             if key == ord("q"):
                 break
+            '''
+            # concat frame one by one and show result
+            # web app
+            framecopy = frame.copy() 
 
+            
             # increment the total number of frames processed thus far and
             # then update the FPS counter
             self.totalFrames += 1
@@ -309,7 +323,7 @@ class mycomputer_vision(threading.Thread):
         vs.stop()
 
         # close any open windows
-        cv2.destroyAllWindows()
+        # cv2.destroyAllWindows()
 
 
 
@@ -322,49 +336,71 @@ Restful Web APP SETUP BELOW
 app = Flask(__name__)
 computer_vision = mycomputer_vision()
 
-@app.route('/people-count') 
+# used to render computer vision in browser
+def gen_frames():
+
+    global framecopy
+    while True:
+        if framecopy is None:
+                continue
+
+        ret, buffer = cv2.imencode('.jpg', framecopy)
+        frame = buffer.tobytes()
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n') 
+
+
+@app.route('/people') 
 def get_updates(): 
 
-    try:
-    
-        info = {"net-people-count":computer_vision.netPeopleCount,
-                "net-people-out":computer_vision.netCountDown,
-                "net-people-in":computer_vision.netCountUp}  
-    
-        response_obj = {'status':'success','info':info}
-        
-    except Exception as error:
-    
-        info = str(error)
-        print(error)
-        response_obj = {'status':'fail','info':info}
-        
-        return jsonify(response_obj), 500
+    info = {"count":computer_vision.netPeopleCount,
+            "out":computer_vision.netCountDown,
+            "in":computer_vision.netCountUp}  
 
+    response_obj = {'status':'success','info':info}
+    
     return jsonify(response_obj)
+
+
+@app.route('/people/count') 
+def get_updates_count(): 
+    return jsonify(computer_vision.netPeopleCount)
+
+
+@app.route('/people/out') 
+def get_updates_out(): 
+    return jsonify(computer_vision.netCountDown)
+
+
+@app.route('/people/in') 
+def get_updates_in(): 
+    return jsonify(computer_vision.netCountUp)
 
 
 @app.route('/reset') 
 def reset_params(): 
 
-    try:
-    
-        computer_vision.netPeopleCount = 0
-        computer_vision.netCountDown = 0
-        computer_vision.netCountUp = 0
-    
-        response_obj = {'status':'success'}
-        
-    except Exception as error:
-    
-        info = str(error)
-        print(error)
-        response_obj = {'status':'fail','info':info}
-        
-        return jsonify(response_obj), 500
+    computer_vision.netPeopleCount = 0
+    computer_vision.netCountDown = 0
+    computer_vision.netCountUp = 0
 
-    return jsonify(response_obj)
+    response_obj = {'status':'success'}
 
+    return response_obj
+
+
+
+@app.route('/video_feed')
+def video_feed():
+    #Video streaming route. Put this in the src attribute of an img tag
+    return Response(gen_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+
+
+@app.route('/')
+def index():
+    """Video streaming home page."""
+    return render_template('index.html')
 
 
 
@@ -374,6 +410,8 @@ MAIN LOOP BELOW
 
 
 if __name__ == "__main__":
+
+    global vs
 
     # construct the argument parse and parse the arguments
     ap = argparse.ArgumentParser()
@@ -411,13 +449,18 @@ if __name__ == "__main__":
     args = vars(ap.parse_args())
     print('Port for the Flask App Is ' + str(args["port"]))
 
-    try:
-        computer_vision.start()
-        app.run(debug=False, 
-        port=args["port"],
-        use_reloader=False)
+    # start computer vision on seperate thread
+    computer_vision.start()
 
-    except:
-        print('trying to exit gracefully')
-        vs.stop()
-        cv2.destroyAllWindows()
+    # start flask app    
+    app.run(debug=True,
+    host="0.0.0.0",
+    port=args["port"],
+    use_reloader=False,
+    threaded=True)
+
+
+# CNTRL - C to kill computer vision
+computer_vision.kill()
+
+
