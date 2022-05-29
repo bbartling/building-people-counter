@@ -21,8 +21,6 @@ import threading
 
 
 
-
-
 class mycomputer_vision(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
@@ -85,14 +83,9 @@ class mycomputer_vision(threading.Thread):
         trackers = []
         trackableObjects = {}
 
-        # initialize the total number of frames processed thus far, along
-        # with the total number of objects that have moved either up or down
-
-
 
         # start the frames per second throughput estimator
         fps = FPS().start()
-        
         
         
         def countUp():
@@ -113,7 +106,6 @@ class mycomputer_vision(threading.Thread):
                 netPeopleCount = 0
             to.counted = True
             self.netPeopleCount = netPeopleCount
-
 
 
         # loop over frames from the video stream
@@ -291,20 +283,10 @@ class mycomputer_vision(threading.Thread):
             if writer is not None:
                 writer.write(frame)
 
-            '''
-            # show the output frame
-            cv2.imshow("Frame", frame)
-            key = cv2.waitKey(1) & 0xFF
-
-            # if the `q` key was pressed, break from the loop
-            if key == ord("q"):
-                break
-            '''
             # concat frame one by one and show result
             # web app
             framecopy = frame.copy() 
 
-            
             # increment the total number of frames processed thus far and
             # then update the FPS counter
             self.totalFrames += 1
@@ -319,13 +301,8 @@ class mycomputer_vision(threading.Thread):
         if writer is not None:
             writer.release()
 
-
+        # kill switch kill computer vision
         vs.stop()
-
-        # close any open windows
-        # cv2.destroyAllWindows()
-
-
 
 
 '''
