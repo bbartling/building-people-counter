@@ -1,4 +1,4 @@
-# datalog-building-people-counter
+# building-people-counter
 
 (insert snip of laptop & USB cam) 
 
@@ -71,7 +71,7 @@ $ py restful_people_count.py -v True
 `-s` this number default is 30 frames could be used for performance tuning purposes depending on the amount of people and overall frame per second (FPS) performance. 
 
 
-## To stop app use CTRL-C` in command prompt to exit gracefully. This also will also print FPS and elapsed time.
+## To stop app use CTRL-C in command prompt to exit gracefully. This also will also print FPS and elapsed time.
 
 ```
 [INFO] elapsed time: 2.85
