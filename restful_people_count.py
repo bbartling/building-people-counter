@@ -26,8 +26,8 @@ class mycomputer_vision(threading.Thread):
         threading.Thread.__init__(self)
 
         self.netPeopleCount = 0
-        self.netCountDown = 0
-        self.netCountUp = 0
+        self.netCountOut = 0
+        self.netCountIn = 0
         self.totalFrames = 0
         self.killswitch = False
 
@@ -88,20 +88,20 @@ class mycomputer_vision(threading.Thread):
         fps = FPS().start()
         
         
-        def countUp():
-            print("countUp()")
-            self.netCountUp += 1
-            netPeopleCount = self.netCountUp - self.netCountDown
+        def countIn():
+            print("countIn()")
+            self.netCountIn += 1
+            netPeopleCount = self.netCountIn - self.netCountOut
             if netPeopleCount <= 0:
                 netPeopleCount = 0
             to.counted = True
             self.netPeopleCount = netPeopleCount
 
 
-        def countDown():
-            print("countDown()")
-            self.netCountDown += 1
-            netPeopleCount = self.netCountUp - self.netCountDown
+        def countOut():
+            print("countOut()")
+            self.netCountOut += 1
+            netPeopleCount = self.netCountIn - self.netCountOut
             if netPeopleCount <= 0:
                 netPeopleCount = 0
             to.counted = True
@@ -236,24 +236,44 @@ class mycomputer_vision(threading.Thread):
                     # the difference between the y-coordinate of the *current*
                     # centroid and the mean of *previous* centroids will tell
                     # us in which direction the object is moving (negative for
-                    # 'up' and positive for 'down')
+                    # 'in' and positive for 'out')
                     y = [c[1] for c in to.centroids]
                     direction = centroid[1] - np.mean(y)
                     to.centroids.append(centroid)
+                
 
                     # check to see if the object has been counted or not
                     if not to.counted:
+
+                        print("centroid[1] IS: ",centroid[1])
+                        print("W IS: ",W)
+                        print("W // 2 IS: ",W // 2)
+                        print("DIRECTION IS: ",direction)
+                        print("centroid[1] < W // 2: ",centroid[1] < W // 2)
+                    
                         # if the direction is negative (indicating the object
-                        # is moving up) AND the centroid is above the center
+                        # is moving in) AND the centroid is above the center
                         # line, count the object
-                        if direction < 0 and centroid[1] < H // 2:
-                            countUp()
+                        if not args["vertical"]:
+                            if direction < 0 and centroid[1] < H // 2:
+                                countIn()
+                                to.counted = True
 
                         # if the direction is positive (indicating the object
-                        # is moving down) AND the centroid is below the
+                        # is moving out) AND the centroid is below the
                         # center line, count the object
-                        elif direction > 0 and centroid[1] > H // 2:
-                            countDown()
+                            elif direction > 0 and centroid[1] > H // 2:
+                                countOut()
+                                to.counted = True
+
+                        else: # math is different with vert line for counting 
+                            if direction < 0 and centroid[1] < W // 2:
+                                countIn()
+                                to.counted = True
+
+                            elif direction > 0 and centroid[1] > W // 2:
+                                countOut()
+                                to.counted = True
 
                 # store the trackable object in our dictionary
                 trackableObjects[objectID] = to
@@ -268,8 +288,8 @@ class mycomputer_vision(threading.Thread):
             # construct a tuple of information we will be displaying on the
             # frame
             info = [
-                ("Up", self.netCountUp),
-                ("Down", self.netCountDown),
+                ("In", self.netCountIn),
+                ("Out", self.netCountOut),
                 ("Status", status),
             ]
 
@@ -331,8 +351,8 @@ def gen_frames():
 def get_updates(): 
 
     info = {"count":computer_vision.netPeopleCount,
-            "out":computer_vision.netCountDown,
-            "in":computer_vision.netCountUp}  
+            "out":computer_vision.netCountOut,
+            "in":computer_vision.netCountIn}  
 
     response_obj = {'status':'success','info':info}
     
@@ -346,20 +366,20 @@ def get_updates_count():
 
 @app.route('/people/out') 
 def get_updates_out(): 
-    return jsonify(computer_vision.netCountDown)
+    return jsonify(computer_vision.netCountOut)
 
 
 @app.route('/people/in') 
 def get_updates_in(): 
-    return jsonify(computer_vision.netCountUp)
+    return jsonify(computer_vision.netCountIn)
 
 
 @app.route('/reset') 
 def reset_params(): 
 
     computer_vision.netPeopleCount = 0
-    computer_vision.netCountDown = 0
-    computer_vision.netCountUp = 0
+    computer_vision.netCountOut = 0
+    computer_vision.netCountIn = 0
 
     response_obj = {'status':'success'}
 
@@ -398,13 +418,13 @@ if __name__ == "__main__":
     ap.add_argument("-c",
                     "--confidence",
                     type=float,
-                    default=0.4,
+                    default=0.9,
                     help="minimum probability to filter weak detections")
 
     ap.add_argument("-s",
                     "--skip-frames",
                     type=int,
-                    default=30,
+                    default=60,
                     help="# of skip frames between detections")
 
     ap.add_argument("-v",
