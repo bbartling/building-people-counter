@@ -3,8 +3,8 @@ from scipy.spatial import distance as dist
 from collections import OrderedDict
 import numpy as np
 
-class CentroidTracker:
-	def __init__(self, maxDisappeared=50, maxDistance=50):
+class CentroidTracker():
+	def __init__(self, maxDisappeared=50):
 		# initialize the next unique object ID along with two ordered
 		# dictionaries used to keep track of mapping a given object
 		# ID to its centroid and number of consecutive frames it has
@@ -17,11 +17,6 @@ class CentroidTracker:
 		# object is allowed to be marked as "disappeared" until we
 		# need to deregister the object from tracking
 		self.maxDisappeared = maxDisappeared
-
-		# store the maximum distance between centroids to associate
-		# an object -- if the distance is larger than this maximum
-		# distance we'll start to mark the object as "disappeared"
-		self.maxDistance = maxDistance
 
 	def register(self, centroid):
 		# when registering an object we use the next available object
@@ -42,7 +37,7 @@ class CentroidTracker:
 		if len(rects) == 0:
 			# loop over any existing tracked objects and mark them
 			# as disappeared
-			for objectID in list(self.disappeared.keys()):
+			for objectID in self.disappeared.keys():
 				self.disappeared[objectID] += 1
 
 				# if we have reached a maximum number of consecutive
@@ -108,13 +103,8 @@ class CentroidTracker:
 			for (row, col) in zip(rows, cols):
 				# if we have already examined either the row or
 				# column value before, ignore it
+				# val
 				if row in usedRows or col in usedCols:
-					continue
-
-				# if the distance between centroids is greater than
-				# the maximum distance, do not associate the two
-				# centroids to the same object
-				if D[row, col] > self.maxDistance:
 					continue
 
 				# otherwise, grab the object ID for the current row,
