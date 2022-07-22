@@ -2,7 +2,7 @@
 
 (insert snip of laptop & USB cam) 
 
-- Computer Vision (CV) is based on the [pyimagesearch](https://pyimagesearch.com/2018/08/13/opencv-people-counter/) people counting tutorials for object tracking. 
+- Computer Vision (CV) is based on the [pyimagesearch](https://pyimagesearch.com/category/object-tracking/) people counting tutorials for object tracking. 
 - Python web app that runs the rest API endpoint to retrieve people count metrics and to render computer vision in browser is based on [Flask](https://flask.palletsprojects.com/en/2.1.x/).
 
 
